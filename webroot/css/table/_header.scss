@@ -1,0 +1,32 @@
+.system-table {
+  thead {
+    th {
+      &.table-title {
+        text-align: center;
+        font-weight: bold;
+      }
+
+      &.th-asc,
+      &.th-desc {
+      }
+
+      a {
+        display: table;
+        position: relative;
+        width: 100% !important;
+        height: 100%;
+        &:after {
+          font-family: Font Awesome\ 5 Free, Font Awesome\ 5 Pro, FontAwesome, Font Awesome\ 6 Free, Font Awesome\ 6 Pro;
+          content: "\f883";
+          margin-left: 5px;
+        }
+        &.asc:after {
+          content: "\f15d";
+        }
+        &.desc:after {
+          content: "\f881";
+        }
+      }
+    }
+  }
+}

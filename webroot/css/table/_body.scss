@@ -1,0 +1,30 @@
+.system-table {
+  &.table-striped > tbody > tr:nth-child(odd),
+  &.table-striped > tbody > tr:nth-child(odd) {
+
+  }
+
+  tbody {
+    tr {
+      td {
+        &.no-records {
+          text-align: center;
+          font-weight: bold;
+          padding: 12px;
+          font-size: 15px;
+          text-transform: uppercase;
+        }
+      }
+    }
+  }
+
+  &.table-hover {
+    tbody {
+      tr {
+        &:hover {
+
+        }
+      }
+    }
+  }
+}

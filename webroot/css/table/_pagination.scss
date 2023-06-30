@@ -1,0 +1,28 @@
+.pagination {
+  .page-item {
+    .page-link {
+    }
+
+
+    &.active {
+      .page-link {
+
+        &:hover,
+        &:focus {
+        }
+      }
+    }
+
+    .page-link {
+      &:hover,
+      &:focus {
+      }
+    }
+
+    &.disabled {
+      cursor: not-allowed;
+      .page-link {
+      }
+    }
+  }
+}

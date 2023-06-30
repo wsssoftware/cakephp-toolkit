@@ -1,0 +1,130 @@
+{#
+/**
+ * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ *
+ * Licensed under The MIT License
+ * For full copyright and license information, please see the LICENSE.txt
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link          http://cakephp.org CakePHP(tm) Project
+ * @since         2.0.0
+ * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ */
+#}
+<?php
+declare(strict_types=1);
+
+namespace {{ namespace }}\Tables;
+
+{% set uses = ['use Cake\\ORM\\Entity;', 'use Cake\\ORM\\Query;', 'use Toolkit\\Tables\\AbstractTable;', "use #{entityFQN};"] %}
+{{ uses|join('\n')|raw }}
+
+
+{{ DocBlock.classDescription(name, 'Table', [['@property \\', namespace, '\\View\\AppView $_view']|join])|raw }}
+class {{ name }} extends AbstractTable
+{
+{% if table %}
+
+    /**
+     * @var string|null
+     */
+    protected ?string $_repositoryName = '{{ table }}';
+{% endif %}
+
+    public function define(): void
+    {
+//        $this
+//            ->setPageLimitOptions([5, 10, 20]) // Change page size options. Default is [10, 20, 50, 100]
+//            ->setDefaultPageLimit(2) // Change de default selected page size
+//            ->setLoadingText(__('Loading amazing items')) // Change the loading text
+//            ->setLoadingErrorText(__('Ops. Something went wrong')) // Change the loading text when something went wrong
+//            ->setSearchPlaceholder(__('A custom placeholder')) // Set a custom placeholder for search input
+//            ->setTableAttributes(['class' => 'my-specific-class']) // Set a custom attributes for table HTML tag
+//            ->setTableTitle('Table teste'); // Set a title for the table in thead HTML tag
+
+        // Example of filter
+        $this->setFilters([
+            'sample' => __('Id less than 100'),
+        ]);
+
+        $this
+{% for field in fields %}
+            ->addDatabaseColumn('{{ tableName }}.{{ field.name }}', __('{{ field.name|humanize }}'))
+{% endfor %}
+            ->addNonDatabaseColumn('actions', __('Actions'));
+    }
+
+    /**
+     * @inheritDoc
+     * @return \Cake\ORM\Query
+     */
+    public function getQuery(): Query
+    {
+        return $this->_repository->find();
+    }
+
+    /**
+     * Filter sample.
+     *
+     * @param \Cake\ORM\Query $query
+     */
+    public function filterSample(Query $query): void {
+        $pk = $this->_repository->getPrimaryKey();
+        $query->where(["$pk <=" => 100]);
+    }
+
+
+{% set lastLoop = 0 %}
+{% for field in fields %}
+    {% set lastLoop = loop.index0 + 1 %}
+
+    /**
+     * Get Html table for field '{{ field.name }}'
+     *
+     * @note Use '$this->_view->' to access the view methods and helper.
+     *
+     * @param mixed $value A value from database.
+     * @param {{ entity }}|Entity $entity Entity to get access to other fields.
+     * @param array $tdAttributes Attributes to use in td HTML tag.
+     * @return string You must return a string.
+     */
+    protected function _getColumn{{ loop.index0 }}(mixed $value, {{ entity }}|Entity $entity, array &$tdAttributes): string {
+
+{%- if field.type in ['int', 'biginteger', 'decimal', 'float'] %}
+
+        return $this->_view->Number->format($value);
+{% elseif field.type in ['text'] %}
+
+        return $this->_view->Text->truncate(strval(h($value)), 100);
+{% elseif field.type in ['string'] %}
+
+        return strval(h($value));
+{% else %}
+
+        return strval(h($value));
+{% endif %}
+    }
+
+{% endfor %}
+
+    /**
+     * Get Html table for field 'actions'
+     *
+     * @note Use '$this->_view->' to access the view methods and helper.
+     *
+     * @param mixed $value A value from database.
+     * @param {{ entity }}|Entity $entity Entity to get access to other fields.
+     * @param array $tdAttributes Attributes to use in td HTML tag.
+     * @return string You must return a string.
+     */
+    protected function _getColumn{{ lastLoop }}(mixed $value, {{ entity }}|Entity $entity, array &$tdAttributes): string {
+        return $this->_view->B5->btnGroupXs(
+            $this->_view->B5->urlBtnView(null, ['action' => 'view', $entity->id]),
+            $this->_view->B5->urlBtnEdit(null, ['action' => 'edit', $entity->id]),
+            $this->_view->B5->urlBtnDelete(null, ['action' => 'delete', $entity->id], ['confirm' => __('Tem certeza que deseja apagar esse {0}? Essa ação não poderá ser desfeita!', __('{{ name }}')),'post' => true]), //TODO name
+        );
+    }
+
+}
